@@ -1,0 +1,105 @@
+configs:
+  postgres_config:
+    file: "./dockerfiles/database/postgresql.conf"
+
+services:
+  db:
+    image: postgres:14-alpine
+    platform: linux/amd64
+    secrets:
+      - db-password
+    environment:
+      PGUSER: postgres
+      POSTGRES_DB: nr11 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+    networks:
+      - backnet
+    command:
+      - -c
+      - config_file=/etc/postgresql.conf
+    configs:
+      - source: postgres_config
+        target: /etc/postgresql.conf
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./backend/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379
+    networks:
+      - backnet
+
+  backend:
+    build:
+      dockerfile: ./dockerfiles/backend/Dockerfile
+      target: builder 
+    platform: linux/amd64
+    environment:
+      - OPENSSL_DIR=/usr/include/openssl
+      - OPENSSL_LIB_DIR=/usr/lib
+      - OPENSSL_INCLUDE_DIR=/usr/include
+      - PKG_CONFIG_PATH=/usr/lib/pkgconfig
+    restart: always
+    # command: alembic upgrade head
+    secrets:
+      - db-password
+    ports:
+      - 8000:8000
+    networks:
+      - backnet
+      - frontnet
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - pdf_data:/var/lib/postgresql/pdfs
+
+  # frontend:
+  #   build:
+  #     dockerfile: ./dockerfiles/frontend/Dockerfile
+  #     target: builder
+  #   platform: linux/amd64
+  #   restart: always
+  #   ports:
+  #     - 3000:3000
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - backnet
+  #     - frontnet
+
+  nginx:
+    build:
+      dockerfile: ./dockerfiles/nginx/Dockerfile
+      target: builder
+    platform: linux/amd64
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+      # - frontend
+    networks:
+      # - frontnet
+      - backnet
+
+volumes:
+  pg_data: {}
+  pdf_data: {}
+secrets:
+  db-password:
+    file: ./dockerfiles/database/secret/password.txt
+
+networks:
+  backnet:
+  frontnet:
