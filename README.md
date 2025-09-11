@@ -1,4 +1,4 @@
-a ecomerce with rust react diesel
+Ecomerce with rust diesel react psql
 
 
 
