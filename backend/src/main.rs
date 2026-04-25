@@ -5,9 +5,10 @@ use std::env;
 mod controllers;
 mod routes;
 mod schema;
-
+mod models;
 #[path = "lib.rs"]
 mod lib;
+
 
 fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -31,9 +32,7 @@ async fn main() -> std::io::Result<()> {
 
     println!("Application run on port {}", &port);
 
-    lib::establish_pg_connection();
-
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
         .service(api_root)
         .configure(config)

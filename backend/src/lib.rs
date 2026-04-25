@@ -1,5 +1,3 @@
-#[path = "models.rs"]
-pub mod models;
 
 #[path = "schema.rs"]
 pub mod schema;

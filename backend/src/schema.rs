@@ -1,5 +1,5 @@
 diesel::table! {
-    user (id) {
+    users (id) {
         id -> Int4,
         user_name -> VarChar,
         password -> VarChar,
@@ -9,7 +9,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    product (id) {
+    products (id) {
         id -> Int4,
         image -> Text,
         title -> VarChar,

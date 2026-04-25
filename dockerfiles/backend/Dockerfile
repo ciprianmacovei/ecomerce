@@ -1,9 +1,10 @@
-FROM rust:1-alpine3.20 AS builder
-RUN apk add --no-cache musl-dev gcc g++ libc-dev build-base linux-headers pkgconfig make openssl-dev libffi-dev postgresql-dev
+FROM rust:latest AS builder
 WORKDIR /backend
 COPY /backend .
+
 RUN cargo build --release
 
+EXPOSE 8000
 CMD ["cargo", "run", "--release"]
 
 FROM alpine:3.20 AS production

@@ -12,7 +12,7 @@ $$;
 \c nr11;
 
 -- Create tables if they don't exist
-CREATE TABLE IF NOT EXISTS "user" (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     user_name VARCHAR NOT NULL,
     password VARCHAR NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS "user" (
     notification_id VARCHAR NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS product (
+CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     image TEXT NOT NULL,
     title VARCHAR NOT NULL,
